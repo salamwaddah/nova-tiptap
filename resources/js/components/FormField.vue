@@ -247,6 +247,7 @@ import buttonHovers from '../mixins/buttonHovers';
 import { FormField, HandlesValidationErrors } from 'laravel-nova';
 
 import PlaceholderBlockExtension from '../extensions/PlaceholderBlockExtension.js';
+import Iframe from '../extensions/iframe.js';
 import VideoContentBlockExtension from './content-blocks/VideoContentBlockExtension.js';
 import GalleryContentBlockExtension from './content-blocks/GalleryContentBlockExtension.js';
 
@@ -504,6 +505,7 @@ export default {
                 }
             }),
             Dropcursor,
+            Iframe,
         ];
 
         if (this.buttons.includes('codeBlock') && this.field.syntaxHighlighting) {
