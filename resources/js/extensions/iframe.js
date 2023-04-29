@@ -1,56 +1,50 @@
-import { Node } from 'tiptap'
+import { Node } from "@tiptap/core"
 
-export default class Iframe extends Node {
+export const inputRegex = /https:\/\/www.youtube.com\/[a-z?=A-Z\-0-7&_]+/
 
-    get name() {
-        return 'iframe'
-    }
-
-    get schema() {
-        return {
-            attrs: {
-                src: {
-                    default: null,
-                },
-            },
-            group: 'block',
-            selectable: false,
-            parseDOM: [{
-                tag: 'iframe',
-                getAttrs: dom => ({
-                    src: dom.getAttribute('src'),
-                }),
-            }],
-            toDOM: node => ['iframe', {
-                src: node.attrs.src,
-                frameborder: 0,
-                allowfullscreen: 'true',
-            }],
+export default Node.create({
+    name: "iframe",
+    group: "block",
+    defaultOptions: {
+        allowFullscreen: true,
+        HTMLAttributes: {
+            class: "iframe-wrapper"
         }
-    }
-
-    get view() {
+    },
+    addAttributes() {
         return {
-            props: ['node', 'updateAttrs', 'view'],
-            computed: {
-                src: {
-                    get() {
-                        return this.node.attrs.src
-                    },
-                    set(src) {
-                        this.updateAttrs({
-                            src,
-                        })
-                    },
-                },
+            src: {
+                default: null,
             },
-            template: `
-        <div class="iframe">
-          <iframe class="iframe__embed" :src="src"></iframe>
-          <input class="iframe__input" @paste.stop type="text" v-model="src" v-if="view.editable" />
-        </div>
-      `,
+            frameborder: {
+                default: 0,
+            },
+            allowfullscreen: {
+                default: this.options.allowFullscreen,
+                parseHTML: () => this.options.allowFullscreen,
+            },
         }
-    }
+    },
+    parseHTML() {
+        return [{
+            tag: "iframe",
+        }]
+    },
+    renderHTML({ HTMLAttributes }) {
+        return ["div", this.options.HTMLAttributes, ["iframe", HTMLAttributes]]
+    },
+    addCommands() {
+        return {
+            setIframe: (options) => ({ tr, dispatch }) => {
+                const { selection } = tr
+                const node = this.type.create(options)
 
-}
+                if (dispatch) {
+                    tr.replaceRangeWith(selection.from, selection.to, node)
+                }
+
+                return true
+            },
+        }
+    },
+})
